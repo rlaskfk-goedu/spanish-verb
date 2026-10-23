@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>스페인어 동사 변형 학습기 & AI 프롬프트 가이드</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter & Outfit -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-heading { font-family: 'Outfit', sans-serif; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        /* Custom scrollbar for table container */
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 6px;
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col antialiased selection:bg-red-500 selection:text-white">
+
+    <!-- Header Navigation -->
+    <header class="bg-gradient-to-r from-red-600 via-amber-500 to-amber-600 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-3">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('quiz')">
+                <div class="bg-white/20 p-2.5 rounded-2xl backdrop-blur-md shadow-inner">
+                    <i class="fa-solid fa-language text-2xl text-yellow-200"></i>
+                </div>
+                <div>
+                    <h1 class="font-heading font-extrabold text-xl md:text-2xl tracking-tight leading-none">¡VerboMaster!</h1>
+                    <p class="text-xs text-amber-100 opacity-90 mt-0.5 font-medium">스페인어 동사 변형 트레이너 & 참조표</p>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <nav class="flex bg-black/20 p-1.5 rounded-2xl text-xs md:text-sm font-semibold w-full sm:w-auto justify-between sm:justify-start gap-1">
+                <button id="nav-quiz" onclick="switchTab('quiz')" class="flex-1 sm:flex-initial px-3.5 py-2 rounded-xl transition-all bg-white text-slate-900 shadow-md font-bold flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-gamepad text-red-500"></i>
+                    <span>학습 모드</span>
+                </button>
+                <button id="nav-table" onclick="switchTab('table')" class="flex-1 sm:flex-initial px-3.5 py-2 rounded-xl transition-all text-white hover:bg-white/10 flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-table-list text-amber-300"></i>
+                    <span>동사 변형 참조표</span>
+                </button>
+                <button id="nav-prompts" onclick="switchTab('prompts')" class="flex-1 sm:flex-initial px-3.5 py-2 rounded-xl transition-all text-white hover:bg-white/10 flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-robot text-yellow-300"></i>
+                    <span>AI 프롬프트 가이드</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-6xl w-full mx-auto px-4 py-6">
+
+        <!-- TAB 1: INTERACTIVE QUIZ & DRILL MODE -->
+        <section id="tab-quiz" class="space-y-6">
+            <!-- Top Controls & Score Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-slate-500 font-semibold uppercase tracking-wider">연속 정답 (Streak)</p>
+                        <p id="streak-count" class="text-2xl font-bold text-amber-500">🔥 0</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 shadow-inner">
+                        <i class="fa-solid fa-fire text-lg"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs text-slate-500 font-semibold uppercase tracking-wider">달성 점수</p>
+                        <p id="score-count" class="text-2xl font-bold text-emerald-600">0 pts</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 shadow-inner">
+                        <i class="fa-solid fa-trophy text-lg"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 col-span-1 md:col-span-2 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">학습 유형</label>
+                        <select id="mode-select" onchange="changeDrillMode()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-xl p-2 font-semibold focus:ring-2 focus:ring-red-500 focus:outline-none">
+                            <option value="mcq">객관식 (4지선다)</option>
+                            <option value="fill">직접 입력 채우기</option>
+                            <option value="cards">플래시카드 단어장</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">동사 그룹 필터</label>
+                        <select id="filter-select" onchange="generateNewQuestion()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-xl p-2 font-semibold focus:ring-2 focus:ring-red-500 focus:outline-none">
+                            <option value="all">전체 동사 (All)</option>
+                            <option value="-ar">-AR 규칙 동사</option>
+                            <option value="-er">-ER 규칙 동사</option>
+                            <option value="-ir">-IR 규칙 동사</option>
+                            <option value="irregular">불규칙 동사만</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">시제 (Tense)</label>
+                        <select id="tense-select" onchange="generateNewQuestion()" class="w-full bg-red-50 border border-red-300 text-red-800 text-xs rounded-xl p-2 font-bold focus:ring-2 focus:ring-red-500 focus:outline-none">
+                            <option value="presente">현재 시제 (Presente)</option>
+                            <option value="preterito">점결거/완료과거 (Pretérito)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz Card Display -->
+            <div class="bg-white rounded-3xl shadow-xl border border-slate-200/80 p-6 md:p-10 text-center max-w-2xl mx-auto relative overflow-hidden">
+                <!-- Decorative Top Bar -->
+                <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-red-500 via-amber-500 to-red-600"></div>
+
+                <!-- Combo Multiplier Badge -->
+                <div id="combo-badge" class="hidden mb-3 animate-bounce">
+                    <span class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-black bg-gradient-to-r from-amber-500 to-red-500 text-white shadow-md">
+                        <i class="fa-solid fa-bolt text-yellow-300"></i> <span id="combo-text">COMBO X3 (+5 Bonus)</span>
+                    </span>
+                </div>
+
+                <!-- Subject & Verb Prompt Box -->
+                <div class="mb-8">
+                    <div class="flex items-center justify-center gap-2 mb-3 flex-wrap">
+                        <span id="verb-type-badge" class="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-slate-100 text-slate-600 border border-slate-200">
+                            -AR 규칙 동사
+                        </span>
+                        <span id="tense-badge" class="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-red-100 text-red-700 border border-red-200">
+                            현재 시제
+                        </span>
+                    </div>
+                    <h2 class="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight font-heading flex justify-center items-center gap-3">
+                        <span id="subject-text" class="text-red-600">Yo</span> 
+                        <span class="text-slate-300">+</span>
+                        <span id="verb-base" class="text-slate-800">Hablar</span>
+                        <button onclick="speakCurrentVerb()" class="text-slate-400 hover:text-amber-500 text-2xl transition-colors p-1" title="발음 듣기">
+                            <i class="fa-solid fa-volume-high"></i>
+                        </button>
+                    </h2>
+                    <p id="verb-meaning" class="text-slate-500 mt-2 text-base font-medium">(뜻: 말하다)</p>
+                </div>
+
+                <!-- DYNAMIC INTERACTION ZONE -->
+                <!-- 1. Multiple Choice Mode -->
+                <div id="mcq-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-md mx-auto">
+                    <!-- Dynamic choices inserted via JS -->
+                </div>
+
+                <!-- 2. Fill in the Blank Mode -->
+                <div id="fill-container" class="hidden max-w-md mx-auto space-y-4">
+                    <div class="relative">
+                        <input type="text" id="fill-input" autocomplete="off" placeholder="알맞은 동사 변형 형태를 입력하세요..." 
+                            onkeyup="if(event.key === 'Enter') checkFillAnswer()"
+                            class="w-full px-5 py-4 text-center text-xl font-bold text-slate-800 bg-slate-50 border-2 border-slate-300 rounded-2xl focus:border-red-500 focus:bg-white focus:outline-none transition-all">
+                        <span class="text-xs text-slate-400 block mt-1.5"><i class="fa-solid fa-keyboard mr-1"></i>엔터(Enter) 키를 누르면 바로 정답을 확인합니다.</span>
+                    </div>
+                    <button onclick="checkFillAnswer()" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3.5 px-6 rounded-2xl shadow-lg shadow-red-500/30 transition-all text-base flex items-center justify-center gap-2">
+                        <span>정답 확인</span> <i class="fa-solid fa-arrow-right text-sm"></i>
+                    </button>
+                </div>
+
+                <!-- 3. Flashcard Mode -->
+                <div id="card-container" class="hidden max-w-md mx-auto space-y-4">
+                    <div id="flashcard" onclick="flipCard()" class="group relative bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-200 hover:border-amber-400 rounded-2xl p-8 cursor-pointer shadow-sm hover:shadow-md transition-all min-h-[160px] flex flex-col justify-center items-center">
+                        <span class="absolute top-3 right-3 text-xs text-amber-700 font-bold flex items-center gap-1 bg-amber-100/90 px-2.5 py-1 rounded-full">
+                            <i class="fa-solid fa-rotate"></i> 클릭하여 뒤집기
+                        </span>
+                        <div id="card-front" class="text-center">
+                            <p class="text-xs uppercase tracking-wider text-amber-700 font-bold mb-1">인칭 + 동사 원형</p>
+                            <p class="text-2xl font-bold text-slate-800"><span id="card-front-subject" class="text-red-600">Yo</span> + <span id="card-front-verb">Hablar</span></p>
+                            <p id="card-front-hint" class="text-xs text-slate-500 mt-1">(뜻: 말하다)</p>
+                        </div>
+                        <div id="card-back" class="text-center hidden">
+                            <p class="text-xs uppercase tracking-wider text-emerald-600 font-bold mb-1">변형된 동사 (Conjugation)</p>
+                            <p id="card-back-text" class="text-3xl font-extrabold text-red-600">Hablo</p>
+                            <p class="text-xs text-slate-400 mt-2"><i class="fa-solid fa-volume-high text-amber-500 mr-1"></i>발음이 자동으로 재생됩니다</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="nextQuestion(false)" class="flex-1 bg-slate-100 hover:bg-red-50 hover:text-red-600 border border-slate-200 text-slate-700 font-bold py-3.5 px-4 rounded-xl transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-xmark"></i> 몰라요 😅
+                        </button>
+                        <button onclick="nextQuestion(true)" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-4 rounded-xl shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-check"></i> 알아요! 👍
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Feedback Banner -->
+                <div id="feedback-message" class="mt-6 p-4 rounded-xl text-sm font-bold hidden flex flex-col items-center justify-center gap-2">
+                    <!-- Feedback content injected dynamically -->
+                </div>
+
+                <!-- Grammatical Tip & Dynamic Breakdown -->
+                <div id="grammatical-tip" class="mt-6 pt-6 border-t border-slate-100 text-left text-xs text-slate-600 bg-slate-50 p-4 rounded-2xl space-y-2">
+                    <div class="flex items-center justify-between border-b border-slate-200/60 pb-2">
+                        <span class="font-bold text-slate-800 flex items-center gap-1.5">
+                            <i class="fa-solid fa-lightbulb text-amber-500 text-sm"></i>
+                            <span>동사 활용 구조 분석 (Grammar Breakdown)</span>
+                        </span>
+                        <span id="breakdown-tag" class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800">어근 + 어미</span>
+                    </div>
+                    <!-- Dynamic Formula Breakdown Box -->
+                    <div id="breakdown-formula" class="bg-white p-2.5 rounded-xl border border-slate-200/80 font-mono text-xs flex items-center justify-around text-center shadow-sm">
+                        <!-- Populated dynamically via JS -->
+                    </div>
+                    <p id="tip-text" class="text-slate-500 text-xs leading-relaxed">스페인어 규칙 동사는 어미(-ar, -er, -ir)를 탈락시키고 인칭 주어에 맞는 고유 어미를 결합합니다.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: VERB CONJUGATION TABLE REFERENCE (완성된 참조표) -->
+        <section id="tab-table" class="hidden space-y-6">
+            <div class="bg-white rounded-3xl p-6 md:p-8 shadow-xl border border-slate-200/80">
+                
+                <!-- Table Header & Controls -->
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 pb-6 border-b border-slate-100">
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="bg-amber-100 text-amber-800 text-xs font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">Master Reference</span>
+                            <span class="text-xs text-slate-400 font-semibold">6대 인칭 변형 종합표</span>
+                        </div>
+                        <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 font-heading">스페인어 핵심 동사 변형 참조표</h2>
+                        <p class="text-slate-500 text-xs md:text-sm mt-1">원하는 동사와 시제를 선택하면 전체 인칭(Yo, Tú, Él/Ella, Nosotros, Vosotros, Ellos) 변형을 한눈에 확인할 수 있습니다.</p>
+                    </div>
+
+                    <!-- Dropdowns & Filters -->
+                    <div class="flex flex-wrap items-center gap-2.5 w-full lg:w-auto">
+                        <div class="flex-1 sm:w-48">
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">시제 선택</label>
+                            <select id="table-tense-select" onchange="renderConjugationTable()" class="w-full bg-amber-50 border border-amber-300 text-amber-900 text-xs md:text-sm rounded-xl p-2.5 font-bold focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                                <option value="presente">현재 시제 (Presente)</option>
+                                <option value="preterito">점결거/완료과거 (Pretérito)</option>
+                            </select>
+                        </div>
+                        <div class="flex-1 sm:w-64">
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">동사 선택</label>
+                            <select id="table-verb-select" onchange="renderConjugationTable()" class="w-full bg-slate-100 border border-slate-300 text-slate-900 text-xs md:text-sm rounded-xl p-2.5 font-bold focus:ring-2 focus:ring-red-500 focus:outline-none">
+                                <!-- Options rendered dynamically with optgroups -->
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Verb Summary Info Header Card -->
+                <div id="table-verb-summary" class="my-6 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-5 shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-2xl bg-amber-500 text-slate-950 flex items-center justify-center text-2xl font-black font-heading shadow-md">
+                            <span id="summary-initial">H</span>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h3 id="summary-verb-base" class="text-2xl font-extrabold font-heading text-amber-300">Hablar</h3>
+                                <button onclick="speakTableVerb()" class="text-slate-300 hover:text-amber-400 text-lg transition-colors p-1" title="전체 원형 발음 듣기">
+                                    <i class="fa-solid fa-volume-high"></i>
+                                </button>
+                                <span id="summary-verb-badge" class="bg-white/20 text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full border border-white/20">
+                                    -AR 규칙 동사
+                                </span>
+                            </div>
+                            <p id="summary-verb-meaning" class="text-slate-300 text-sm font-medium mt-0.5">뜻: 말하다 / 이야기하다</p>
+                        </div>
+                    </div>
+
+                    <div class="w-full md:w-auto bg-white/10 rounded-xl p-3 border border-white/10 text-xs leading-relaxed max-w-md">
+                        <p class="font-bold text-amber-200 mb-1 flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-info"></i> 문법 핵심 포인트
+                        </p>
+                        <p id="summary-verb-tip" class="text-slate-300 text-[11px]">
+                            규칙 -AR 동사로, 어근 뒤에 인칭 어미가 순차적으로 결합합니다.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Category Quick Filter Tabs for Table -->
+                <div class="flex items-center gap-2 mb-4 overflow-x-auto pb-2 custom-scrollbar">
+                    <span class="text-xs font-bold text-slate-400 whitespace-nowrap mr-1"><i class="fa-solid fa-filter mr-1"></i>빠른 그룹 선택:</span>
+                    <button onclick="filterTableCategory('all')" class="table-cat-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white transition-all whitespace-nowrap">전체</button>
+                    <button onclick="filterTableCategory('-ar')" class="table-cat-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all whitespace-nowrap">-AR 동사</button>
+                    <button onclick="filterTableCategory('-er')" class="table-cat-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all whitespace-nowrap">-ER 동사</button>
+                    <button onclick="filterTableCategory('-ir')" class="table-cat-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all whitespace-nowrap">-IR 동사</button>
+                    <button onclick="filterTableCategory('irregular')" class="table-cat-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all whitespace-nowrap">불규칙 동사</button>
+                </div>
+
+                <!-- Responsive Conjugation Table -->
+                <div class="overflow-x-auto rounded-2xl border border-slate-200/80 shadow-sm custom-scrollbar">
+                    <table class="w-full text-left border-collapse min-w-[600px]">
+                        <thead>
+                            <tr class="bg-gradient-to-r from-slate-100 to-slate-200 border-b border-slate-200 text-slate-700 text-xs font-bold uppercase tracking-wider">
+                                <th class="p-4 w-1/4 rounded-tl-2xl">인칭 대명사 (Subject)</th>
+                                <th class="p-4 w-1/4">한국어 의미 (Meaning)</th>
+                                <th class="p-4 w-1/3">변형 형태 (Conjugation)</th>
+                                <th class="p-4 w-1/6 text-center rounded-tr-2xl">발음 (Audio)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body" class="divide-y divide-slate-100 text-sm font-medium bg-white">
+                            <!-- Rows populated dynamically via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Footer Tip inside Table tab -->
+                <div class="mt-4 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-400 pt-2 gap-2">
+                    <p><i class="fa-solid fa-mobile-screen mr-1"></i>모바일 화면에서는 표를 좌우로 스크롤하거나 가로 모드로 이용하세요.</p>
+                    <span class="font-mono text-[11px] text-amber-600 font-bold bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
+                        총 <span id="total-verbs-count">0</span>개 동사 수록
+                    </span>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- TAB 3: STEP-BY-STEP AI PROMPT MASTER GUIDE -->
+        <section id="tab-prompts" class="hidden space-y-6">
+            <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-6 md:p-8 shadow-xl">
+                <div class="max-w-3xl">
+                    <span class="bg-amber-400 text-slate-900 text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider mb-3 inline-block">프롬프트 워크플로우</span>
+                    <h2 class="text-2xl md:text-4xl font-extrabold font-heading text-white">생성형 AI로 반응형 스페인어 학습앱 만들기</h2>
+                    <p class="text-slate-300 text-sm md:text-base mt-2">
+                        ChatGPT, Claude, Gemini 등에 아래 단계별 프롬프트를 차례대로 입력하면 이와 동일하거나 더 확장된 스페인어 학습 웹앱을 스스로 구현할 수 있습니다.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Steps Grid -->
+            <div class="space-y-6">
+
+                <!-- Step 1 -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center space-x-3">
+                            <span class="w-8 h-8 rounded-full bg-red-600 text-white flex items-center justify-center font-bold text-sm shadow">1</span>
+                            <h3 class="font-bold text-lg text-slate-900">Step 1: 앱 기획 & 전체 아키텍처 설정 프롬프트</h3>
+                        </div>
+                        <button onclick="copyPrompt('prompt-1')" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg border font-semibold transition-all">
+                            <i class="fa-regular fa-copy mr-1"></i>복사하기
+                        </button>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-3">웹앱의 목적, 대상, 사용하는 기술 스택(HTML/Tailwind/JS)의 기본 프레임워크를 요구합니다.</p>
+                    <pre id="prompt-1" class="bg-slate-900 text-amber-300 p-4 rounded-xl text-xs overflow-x-auto whitespace-pre-wrap font-mono leading-relaxed">
+스페인어 동사 변형(Conjugation)을 주어 인칭(Yo, Tú, Él/Ella/Usted, Nosotros, Vosotros, Ellos/Ellas/Ustedes)별로 효과적으로 학습할 수 있는 반응형 웹 애플리케이션을 단일 HTML 파일(Tailwind CSS + Vanilla JS)로 제작하려고 합니다.
+
+[기본 사양]
+1. 프론트엔드: HTML5, Tailwind CSS(CDN), JavaScript (ES6)
+2. 디자인: 모바일/데스크톱 모두 지원하는 깨끗하고 현대적인 카드 스타일 UX
+3. 주요 목적: 초/중급 스페인어 학습자가 반복적으로 인칭별 동사 변화를 연습할 수 있도록 유도.
+
+우선 전체 HTML 구조의 뼈대와 헤더 탭 메뉴(학습 모드, 동사 변형표, AI 가이드)를 갖춘 레이아웃 코드를 작성해 줘.</pre>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center space-x-3">
+                            <span class="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center font-bold text-sm shadow">2</span>
+                            <h3 class="font-bold text-lg text-slate-900">Step 2: 동사 데이터베이스 및 규칙 엔진 설계</h3>
+                        </div>
+                        <button onclick="copyPrompt('prompt-2')" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg border font-semibold transition-all">
+                            <i class="fa-regular fa-copy mr-1"></i>복사하기
+                        </button>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-3">규칙 동사(-ar, -er, -ir)와 불규칙 동사(ser, estar, ir, tener 등)를 표현하는 JSON 데이터 구조를 생성합니다.</p>
+                    <pre id="prompt-2" class="bg-slate-900 text-amber-300 p-4 rounded-xl text-xs overflow-x-auto whitespace-pre-wrap font-mono leading-relaxed">
+이제 스페인어 동사 데이터를 관리할 JavaScript 객체 배열(JSON 구조)을 작성해 줘.
+
+[데이터 요구조건]
+1. 규칙 동사: -AR (hablar), -ER (comer), -IR (vivir)
+2. 주요 불규칙 동사: Ser, Estar, Ir, Tener, Hacer
+3. 각 동사 객체에는 다음 항목이 포함되어야 함:
+   - id, base(원형), meaning(한국어 뜻), type(-ar, -er, -ir, irregular)
+   - conjugations: { yo, tu, el_ella_usted, nosotros, vosotros, ellos_ellas_ustedes }
+4. 인칭 대명사의 한국어 설명 표기 (예: Yo = 나, Tú = 너, Nosotros = 우리들)
+
+이 데이터를 바탕으로 특정 주어와 동사 원형이 주어졌을 때 정답 형태를 반환하는 변형 로직 함수를 포함해 줘.</pre>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center space-x-3">
+                            <span class="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm shadow">3</span>
+                            <h3 class="font-bold text-lg text-slate-900">Step 3: 다양한 인터랙티브 학습 모드 구현</h3>
+                        </div>
+                        <button onclick="copyPrompt('prompt-3')" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg border font-semibold transition-all">
+                            <i class="fa-regular fa-copy mr-1"></i>복사하기
+                        </button>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-3">객관식, 직접 입력, 플래시카드의 3가지 모드를 통한 다양성 부여 프롬프트입니다.</p>
+                    <pre id="prompt-3" class="bg-slate-900 text-amber-300 p-4 rounded-xl text-xs overflow-x-auto whitespace-pre-wrap font-mono leading-relaxed">
+사용자가 지루하지 않게 다양한 방식으로 반복 학습할 수 있도록 3가지 연습 모드를 구현해 줘.
+
+[학습 모드 세부 사양]
+1. 객관식 퀴즈 모드: 주어(예: Nosotros)와 동사 원형(예: Comer)이 주어지면, 4개의 오답/정답 선지 버튼 중 알맞은 변형(Comemos)을 선택.
+2. 빈칸 입력 모드: 텍스트 입력창에 직접 정확한 스펠링으로 변형된 동사를 입력하고 [확인] 버튼을 누름.
+3. 플래시카드 모드: 앞면엔 "주어 + 동사원형", 클릭 시 뒤집어지며 정답 변형 형태 확인 (알아요/몰라요 버튼 제공).
+
+드롭다운 메뉴로 이 3가지 모드를 자유롭게 전환할 수 있도록 JavaScript 로직과 UI를 연결해 줘.</pre>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center space-x-3">
+                            <span class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow">4</span>
+                            <h3 class="font-bold text-lg text-slate-900">Step 4: 게임화(Gamification) & 음성/피드백 기능</h3>
+                        </div>
+                        <button onclick="copyPrompt('prompt-4')" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg border font-semibold transition-all">
+                            <i class="fa-regular fa-copy mr-1"></i>복사하기
+                        </button>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-3">동기부여를 위한 연속 정답(Streak), 발음 듣기(TTS), 정답 설명 피드백 기능 추가.</p>
+                    <pre id="prompt-4" class="bg-slate-900 text-amber-300 p-4 rounded-xl text-xs overflow-x-auto whitespace-pre-wrap font-mono leading-relaxed">
+학습 효율성과 재미를 극대화하기 위해 다음 기능들을 추가해 줘.
+
+1. Streak & Score 시스템: 연속 정답 시 🔥 불꽃 스티커와 함께 연속 카운트 증가. 오답 시 0으로 리셋.
+2. 스페인어 발음 TTS (Text-to-Speech): Web Speech API(`window.speechSynthesis`)를 활용하여 스피커 아이콘을 누르면 스페인어 발음(es-ES)을 들려주는 기능.
+3. 피드백 및 문법 설명: 정답/오답 클릭 시 단순 성공 유무 외에 왜 이 동사 형태가 나오는지 간단한 시각적 피드백과 설명 박스 노출.
+
+이 코드를 기존 코드에 통합해 줘.</pre>
+                </div>
+
+                <!-- Step 5 -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="flex items-center space-x-3">
+                            <span class="w-8 h-8 rounded-full bg-purple-600 text-white flex items-center justify-center font-bold text-sm shadow">5</span>
+                            <h3 class="font-bold text-lg text-slate-900">Step 5: 전체 동사 변형 총정리 참조표 및 UI 다듬기</h3>
+                        </div>
+                        <button onclick="copyPrompt('prompt-5')" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg border font-semibold transition-all">
+                            <i class="fa-regular fa-copy mr-1"></i>복사하기
+                        </button>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-3">전체 인칭별 변형을 한눈에 조회할 수 있는 종합 참조 테이블과 UI 완성도 향상.</p>
+                    <pre id="prompt-5" class="bg-slate-900 text-amber-300 p-4 rounded-xl text-xs overflow-x-auto whitespace-pre-wrap font-mono leading-relaxed">
+마지막 단계로, 사용자가 언제든지 특정 동사의 전체 6가지 인칭 변형 형태를 한눈에 볼 수 있는 '동사 변형 참조표' 탭을 완성해 줘.
+
+1. 셀렉트 박스에서 원하는 동사를 선택하면 (Yo, Tú, Él/Ella/Usted, Nosotros, Vosotros, Ellos/Ellas/Ustedes)에 해당하는 변형 표가 테이블 형태로 즉시 업데이트됨.
+2. 반응형 모바일 대응: 모바일 화면에서도 테이블이 잘리지 않고 깔끔하게 보이도록 Tailwind 스타일링 적용.
+3. 완성된 단일 HTML 파일 전체 코드를 버그 없이 동작하게 제공해 줘.</pre>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Toast Notification Container -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-2xl transition-all duration-300 opacity-0 translate-y-5 pointer-events-none text-xs md:text-sm font-semibold flex items-center space-x-2 z-50">
+        <i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+        <span id="toast-msg">복사되었습니다!</span>
+    </div>
+
+    <!-- JAVASCRIPT APP ENGINE -->
+    <script>
+        // --- 1. COMPREHENSIVE SPANISH VERB DATABASE ---
+        const verbDatabase = [
+            {
+                id: "hablar",
+                base: "Hablar",
+                meaning: "말하다 / 이야기하다",
+                type: "-AR 규칙 동사",
+                category: "-ar",
+                tip: "-AR 동사는 현재시제에서 어미가 (-o, -as, -a, -amos, -áis, -an), 과거시제에서 (-é, -aste, -ó, -amos, -asteis, -aron)으로 변화합니다.",
+                conjugations: {
+                    presente: { yo: "hablo", tu: "hablas", el: "habla", nosotros: "hablamos", vosotros: "habláis", ellos: "hablan" },
+                    preterito: { yo: "hablé", tu: "hablaste", el: "habló", nosotros: "hablamos", vosotros: "hablasteis", ellos: "hablaron" }
+                }
+            },
+            {
+                id: "trabajar",
+                base: "Trabajar",
+                meaning: "일하다 / 작업하다",
+                type: "-AR 규칙 동사",
+                category: "-ar",
+                tip: "표준 규칙 -AR 동사로, 어근 'trabaj-'에 인칭별 고유 규칙 어미를 연결합니다.",
+                conjugations: {
+                    presente: { yo: "trabajo", tu: "trabajas", el: "trabaja", nosotros: "trabajamos", vosotros: "trabajáis", ellos: "trabajan" },
+                    preterito: { yo: "trabajé", tu: "trabajaste", el: "trabajó", nosotros: "trabajamos", vosotros: "trabajasteis", ellos: "trabajaron" }
+                }
+            },
+            {
+                id: "estudiar",
+                base: "Estudiar",
+                meaning: "공부하다 / 학습하다",
+                type: "-AR 규칙 동사",
+                category: "-ar",
+                tip: "어근 'estudi-'에 어미가 결합하며, 현재/과거 규칙 변화 어미를 따릅니다.",
+                conjugations: {
+                    presente: { yo: "estudio", tu: "estudias", el: "estudia", nosotros: "estudiamos", vosotros: "estudiáis", ellos: "estudian" },
+                    preterito: { yo: "estudié", tu: "estudiaste", el: "estudió", nosotros: "estudiamos", vosotros: "estudiasteis", ellos: "estudiaron" }
+                }
+            },
+            {
+                id: "comer",
+                base: "Comer",
+                meaning: "먹다 / 식사하다",
+                type: "-ER 규칙 동사",
+                category: "-er",
+                tip: "-ER 동사는 현재시제에서 (-o, -es, -e, -emos, -éis, -en), 과거시제에서 (-í, -iste, -ió, -imos, -isteis, -ieron)으로 변합니다.",
+                conjugations: {
+                    presente: { yo: "como", tu: "comes", el: "come", nosotros: "comemos", vosotros: "coméis", ellos: "comen" },
+                    preterito: { yo: "comí", tu: "comiste", el: "comió", nosotros: "comimos", vosotros: "comisteis", ellos: "comieron" }
+                }
+            },
+            {
+                id: "aprender",
+                base: "Aprender",
+                meaning: "배우다 / 습득하다",
+                type: "-ER 규칙 동사",
+                category: "-er",
+                tip: "-ER 규칙 동사로 어근 'aprend-'에 인칭별 규칙 어미가 접속됩니다.",
+                conjugations: {
+                    presente: { yo: "aprendo", tu: "aprendes", el: "aprende", nosotros: "aprendemos", vosotros: "aprendéis", ellos: "aprenden" },
+                    preterito: { yo: "aprendí", tu: "aprendiste", el: "aprendió", nosotros: "aprendimos", vosotros: "aprendisteis", ellos: "aprendieron" }
+                }
+            },
+            {
+                id: "vivir",
+                base: "Vivir",
+                meaning: "살다 / 거주하다",
+                type: "-IR 규칙 동사",
+                category: "-ir",
+                tip: "-IR 동사는 현재시제에서 (-o, -es, -e, -imos, -ís, -en), 과거시제 어미는 -ER 동사와 identical(-í, -iste, -ió, -imos, -isteis, -ieron)합니다.",
+                conjugations: {
+                    presente: { yo: "vivo", tu: "vives", el: "vive", nosotros: "vivimos", vosotros: "vivís", ellos: "viven" },
+                    preterito: { yo: "viví", tu: "viviste", el: "vivió", nosotros: "vivimos", vosotros: "vivisteis", ellos: "vivieron" }
+                }
+            },
+            {
+                id: "escribir",
+                base: "Escribir",
+                meaning: "쓰다 / 편지하다",
+                type: "-IR 규칙 동사",
+                category: "-ir",
+                tip: "-IR 규칙 동사로 어근 'escrib-'에 인칭 어미가 규칙 결합합니다.",
+                conjugations: {
+                    presente: { yo: "escribo", tu: "escribes", el: "escribe", nosotros: "escribimos", vosotros: "escribís", ellos: "escriben" },
+                    preterito: { yo: "escribí", tu: "escribiste", el: "escribió", nosotros: "escribimos", vosotros: "escribisteis", ellos: "escribieron" }
+                }
+            },
+            {
+                id: "ser",
+                base: "Ser",
+                meaning: "~이다 (본질/신분/속성)",
+                type: "불규칙 동사",
+                category: "irregular",
+                tip: "Ser 동사의 과거형(fui, fuiste...)은 Ir 동사의 과거형과 형태가 완전히 일치하므로 문맥으로 구별합니다.",
+                conjugations: {
+                    presente: { yo: "soy", tu: "eres", el: "es", nosotros: "somos", vosotros: "sois", ellos: "son" },
+                    preterito: { yo: "fui", tu: "fuiste", el: "fue", nosotros: "fuimos", vosotros: "fuisteis", ellos: "fueron" }
+                }
+            },
+            {
+                id: "estar",
+                base: "Estar",
+                meaning: "~에 있다 / ~한 상태이다",
+                type: "불규칙 동사",
+                category: "irregular",
+                tip: "현재형 Yo(estoy) 및 강세 부호(estás, está)에 주의하세요. 과거형은 estuv- 어근(estuve, estuviste)을 사용합니다.",
+                conjugations: {
+                    presente: { yo: "estoy", tu: "estás", el: "está", nosotros: "estamos", vosotros: "estáis", ellos: "están" },
+                    preterito: { yo: "estuve", tu: "estuviste", el: "estuvo", nosotros: "estuvimos", vosotros: "estuvisteis", ellos: "estuvieron" }
+                }
+            },
+            {
+                id: "ir",
+                base: "Ir",
+                meaning: "가다",
+                type: "불규칙 동사",
+                category: "irregular",
+                tip: "현재형은 voy, vas, va... 불규칙 형태이며, 과거형은 Ser 동사의 과거형(fui, fuiste...)과 일치합니다.",
+                conjugations: {
+                    presente: { yo: "voy", tu: "vas", el: "va", nosotros: "vamos", vosotros: "vais", ellos: "van" },
+                    preterito: { yo: "fui", tu: "fuiste", el: "fue", nosotros: "fuimos", vosotros: "fuisteis", ellos: "fueron" }
+                }
+            },
+            {
+                id: "tener",
+                base: "Tener",
+                meaning: "가지고 있다 / 나이가 ~살이다",
+                type: "어근 변화 불규칙",
+                category: "irregular",
+                tip: "1인칭 Yo(tengo) 및 e->ie 어근변화(tienes)를 가지며, 과거형은 tuv- 어근(tuve)을 사용합니다.",
+                conjugations: {
+                    presente: { yo: "tengo", tu: "tienes", el: "tiene", nosotros: "tenemos", vosotros: "tenéis", ellos: "tienen" },
+                    preterito: { yo: "tuve", tu: "tuviste", el: "tuvo", nosotros: "tuvimos", vosotros: "tuvisteis", ellos: "tuvieron" }
+                }
+            },
+            {
+                id: "hacer",
+                base: "Hacer",
+                meaning: "하다 / 만들기",
+                type: "불규칙 동사",
+                category: "irregular",
+                tip: "현재형 Yo(hago)와 과거형 hic- 어근(3인칭 단수는 c->z 변형: hizo)을 숙지하세요.",
+                conjugations: {
+                    presente: { yo: "hago", tu: "haces", el: "hace", nosotros: "hacemos", vosotros: "hacéis", ellos: "hacen" },
+                    preterito: { yo: "hice", tu: "hiciste", el: "hizo", nosotros: "hicimos", vosotros: "hicisteis", ellos: "hicieron" }
+                }
+            },
+            {
+                id: "querer",
+                base: "Querer",
+                meaning: "원하다 / 사랑하다",
+                type: "어근 변화 불규칙",
+                category: "irregular",
+                tip: "현재형에서 e->ie로 변형(quiero)되고, 과거형은 quis- 어근(quise)을 적용합니다.",
+                conjugations: {
+                    presente: { yo: "quiero", tu: "quieres", el: "quiere", nosotros: "queremos", vosotros: "queréis", ellos: "quieren" },
+                    preterito: { yo: "quise", tu: "quisiste", el: "quiso", nosotros: "quisimos", vosotros: "quisisteis", ellos: "quisieron" }
+                }
+            },
+            {
+                id: "poder",
+                base: "Poder",
+                meaning: "~할 수 있다",
+                type: "어근 변화 불규칙",
+                category: "irregular",
+                tip: "현재형에서 o->ue로 변형(puedo)되며, 과거형은 pud- 어근(pude, pudiste)을 활용합니다.",
+                conjugations: {
+                    presente: { yo: "puedo", tu: "puedes", el: "puede", nosotros: "podemos", vosotros: "podéis", ellos: "pueden" },
+                    preterito: { yo: "pude", tu: "pudiste", el: "pudo", nosotros: "pudimos", vosotros: "pudisteis", ellos: "pudieron" }
+                }
+            },
+            {
+                id: "decir",
+                base: "Decir",
+                meaning: "말하다 / 이야기하다",
+                type: "불규칙 동사",
+                category: "irregular",
+                tip: "현재형 Yo(digo), e->i 변형(dices), 과거형 dij- 어근(dije, dijeron)이 핵심 특징입니다.",
+                conjugations: {
+                    presente: { yo: "digo", tu: "dices", el: "dice", nosotros: "decimos", vosotros: "decís", ellos: "dicen" },
+                    preterito: { yo: "dije", tu: "dijiste", el: "dijo", nosotros: "dijimos", vosotros: "dijisteis", ellos: "dijeron" }
+                }
+            },
+            {
+                id: "saber",
+                base: "Saber",
+                meaning: "알다 (지식/사실)",
+                type: "불규칙 동사",
+                category: "irregular",
+                tip: "현재형 1인칭 Yo(sé)의 강세 부호와 과거형 sup- 어근(supe, supiste)에 주의하세요.",
+                conjugations: {
+                    presente: { yo: "sé", tu: "sabes", el: "sabe", nosotros: "sabemos", vosotros: "sabéis", ellos: "saben" },
+                    preterito: { yo: "supe", tu: "supiste", el: "supo", nosotros: "supimos", vosotros: "supisteis", ellos: "supieron" }
+                }
+            },
+            {
+                id: "venir",
+                base: "Venir",
+                meaning: "오다",
+                type: "불규칙 동사",
+                category: "irregular",
+                tip: "현재형 Yo(vengo), e->ie 어근변화(vienes), 과거형 vin- 어근(vine)을 활용합니다.",
+                conjugations: {
+                    presente: { yo: "vengo", tu: "vienes", el: "viene", nosotros: "venimos", vosotros: "venís", ellos: "vienen" },
+                    preterito: { yo: "vine", tu: "viniste", el: "vino", nosotros: "vinimos", vosotros: "vinisteis", ellos: "vinieron" }
+                }
+            }
+        ];
+
+        const subjects = [
+            { key: "yo", label: "Yo", kr: "나 (1인칭 단수)" },
+            { key: "tu", label: "Tú", kr: "너 (2인칭 단수 친근)" },
+            { key: "el", label: "Él / Ella / Usted", kr: "그/그녀/당신 (3인칭 단수)" },
+            { key: "nosotros", label: "Nosotros / as", kr: "우리들 (1인칭 복수)" },
+            { key: "vosotros", label: "Vosotros / as", kr: "너희들 (2인칭 복수 - 스페인)" },
+            { key: "ellos", label: "Ellos / Ellas / Ustedes", kr: "그들/그녀들/당신들 (3인칭 복수)" }
+        ];
+
+        // --- 2. STATE MANAGEMENT ---
+        let currentMode = "mcq"; // mcq, fill, cards
+        let currentTense = "presente"; // presente, preterito
+        let currentFilter = "all"; // all, -ar, -er, -ir, irregular
+        let currentVerb = null;
+        let currentSubject = null;
+        let correctAnswer = "";
+        let streak = 0;
+        let score = 0;
+        let isCardFlipped = false;
+        let selectedTableCategory = "all";
+
+        // --- 3. INITIALIZATION & TAB NAVIGATION ---
+        window.onload = function() {
+            initTableSelectOptions();
+            generateNewQuestion();
+            setupKeyboardListeners();
+            document.getElementById('total-verbs-count').innerText = verbDatabase.length;
+        };
+
+        function setupKeyboardListeners() {
+            document.addEventListener('keydown', function(e) {
+                if (currentMode === 'mcq') {
+                    if (['1', '2', '3', '4'].includes(e.key)) {
+                        const index = parseInt(e.key) - 1;
+                        const buttons = document.querySelectorAll('#mcq-container button');
+                        if (buttons[index]) buttons[index].click();
+                    }
+                }
+            });
+        }
+
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.getElementById('tab-quiz').classList.add('hidden');
+            document.getElementById('tab-table').classList.add('hidden');
+            document.getElementById('tab-prompts').classList.add('hidden');
+
+            // Reset navigation styles
+            const navs = ['quiz', 'table', 'prompts'];
+            navs.forEach(n => {
+                const btn = document.getElementById(`nav-${n}`);
+                btn.className = "flex-1 sm:flex-initial px-3.5 py-2 rounded-xl transition-all text-white hover:bg-white/10 flex items-center justify-center gap-1.5 font-semibold";
+            });
+
+            // Show target tab & highlight nav
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`nav-${tabName}`);
+            activeBtn.className = "flex-1 sm:flex-initial px-3.5 py-2 rounded-xl transition-all bg-white text-slate-900 shadow-md font-bold flex items-center justify-center gap-1.5";
+
+            if (tabName === 'table') {
+                renderConjugationTable();
+            }
+        }
+
+        function changeDrillMode() {
+            currentMode = document.getElementById('mode-select').value;
+            
+            document.getElementById('mcq-container').classList.add('hidden');
+            document.getElementById('fill-container').classList.add('hidden');
+            document.getElementById('card-container').classList.add('hidden');
+
+            if(currentMode === 'mcq') {
+                document.getElementById('mcq-container').classList.remove('hidden');
+            } else if(currentMode === 'fill') {
+                document.getElementById('fill-container').classList.remove('hidden');
+                setTimeout(() => document.getElementById('fill-input').focus(), 100);
+            } else if(currentMode === 'cards') {
+                document.getElementById('card-container').classList.remove('hidden');
+            }
+
+            generateNewQuestion();
+        }
+
+        // --- 4. QUESTION GENERATOR ENGINE ---
+        function generateNewQuestion() {
+            hideFeedback();
+            document.getElementById('fill-input').value = "";
+            isCardFlipped = false;
+            document.getElementById('card-front').classList.remove('hidden');
+            document.getElementById('card-back').classList.add('hidden');
+
+            currentFilter = document.getElementById('filter-select') ? document.getElementById('filter-select').value : "all";
+            currentTense = document.getElementById('tense-select') ? document.getElementById('tense-select').value : "presente";
+
+            let filteredVerbs = verbDatabase;
+            if (currentFilter !== "all") {
+                filteredVerbs = verbDatabase.filter(v => v.category === currentFilter);
+            }
+            if (filteredVerbs.length === 0) filteredVerbs = verbDatabase;
+
+            currentVerb = filteredVerbs[Math.floor(Math.random() * filteredVerbs.length)];
+            currentSubject = subjects[Math.floor(Math.random() * subjects.length)];
+            
+            correctAnswer = currentVerb.conjugations[currentTense][currentSubject.key];
+
+            // Render Quiz UI
+            document.getElementById('verb-type-badge').innerText = currentVerb.type;
+            document.getElementById('tense-badge').innerText = currentTense === 'presente' ? '현재 시제' : '점결거/과거 시제';
+            document.getElementById('subject-text').innerText = currentSubject.label;
+            document.getElementById('verb-base').innerText = currentVerb.base;
+            document.getElementById('verb-meaning').innerText = `(뜻: ${currentVerb.meaning} | 주어: ${currentSubject.kr})`;
+            document.getElementById('tip-text').innerText = currentVerb.tip;
+
+            updateGrammarBreakdownUI();
+
+            // Flashcard sync
+            document.getElementById('card-front-subject').innerText = currentSubject.label;
+            document.getElementById('card-front-verb').innerText = currentVerb.base;
+            document.getElementById('card-front-hint').innerText = `(뜻: ${currentVerb.meaning})`;
+            document.getElementById('card-back-text').innerText = correctAnswer;
+
+            if (currentMode === 'mcq') {
+                renderMcqOptions();
+            } else if (currentMode === 'fill') {
+                setTimeout(() => document.getElementById('fill-input').focus(), 100);
+            }
+        }
+
+        function updateGrammarBreakdownUI() {
+            const formulaBox = document.getElementById('breakdown-formula');
+            const verbBase = currentVerb.base.toLowerCase();
+            
+            if (currentVerb.category !== 'irregular') {
+                const stem = verbBase.slice(0, -2);
+                const ending = verbBase.slice(-2);
+                formulaBox.innerHTML = `
+                    <div><span class="text-slate-400 block text-[10px]">어근 (Stem)</span><span class="font-bold text-slate-800">${stem}-</span></div>
+                    <span class="text-slate-300 font-sans">+</span>
+                    <div><span class="text-slate-400 block text-[10px]">어미 (Ending)</span><span class="font-bold text-amber-600">-${ending}</span></div>
+                    <span class="text-slate-300 font-sans">➔</span>
+                    <div><span class="text-slate-400 block text-[10px]">결합변형</span><span class="font-bold text-red-600">${correctAnswer}</span></div>
+                `;
+            } else {
+                formulaBox.innerHTML = `
+                    <div><span class="text-slate-400 block text-[10px]">원형</span><span class="font-bold text-slate-800">${currentVerb.base}</span></div>
+                    <span class="text-slate-300 font-sans">⚡</span>
+                    <div><span class="text-slate-400 block text-[10px]">불규칙 변형</span><span class="font-bold text-red-600">${correctAnswer}</span></div>
+                    <span class="text-slate-300 font-sans">(${currentSubject.label})</span>
+                `;
+            }
+        }
+
+        function renderMcqOptions() {
+            const container = document.getElementById('mcq-container');
+            container.innerHTML = "";
+
+            let options = new Set();
+            options.add(correctAnswer);
+
+            let attempts = 0;
+            while(options.size < 4 && attempts < 50) {
+                attempts++;
+                const randomVerb = verbDatabase[Math.floor(Math.random() * verbDatabase.length)];
+                const randomSub = subjects[Math.floor(Math.random() * subjects.length)];
+                const randomTense = Math.random() > 0.5 ? "presente" : "preterito";
+                const distractor = randomVerb.conjugations[randomTense][randomSub.key];
+                if (distractor) options.add(distractor);
+            }
+
+            const shuffled = Array.from(options).sort(() => Math.random() - 0.5);
+
+            shuffled.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "group relative w-full bg-slate-50 hover:bg-amber-50 hover:border-amber-400 border-2 border-slate-200 text-slate-800 font-bold py-3.5 px-4 rounded-xl transition-all text-lg font-heading text-center flex items-center justify-between shadow-sm";
+                btn.innerHTML = `
+                    <span class="w-6 h-6 rounded-lg bg-slate-200 text-slate-600 group-hover:bg-amber-500 group-hover:text-white text-xs flex items-center justify-center font-mono font-bold transition-colors">${idx + 1}</span>
+                    <span class="flex-1 text-center">${opt}</span>
+                    <span class="w-6"></span>
+                `;
+                btn.onclick = () => checkMcqAnswer(opt, btn);
+                container.appendChild(btn);
+            });
+        }
+
+        // --- 5. ANSWER CHECKING & GAME MECHANICS ---
+        function checkMcqAnswer(selected, buttonEl) {
+            if (selected === correctAnswer) {
+                handleSuccess();
+                buttonEl.classList.add('bg-emerald-100', 'border-emerald-500', 'text-emerald-800');
+            } else {
+                handleFailure(correctAnswer);
+                buttonEl.classList.add('bg-red-100', 'border-red-500', 'text-red-800');
+            }
+        }
+
+        function checkFillAnswer() {
+            const input = document.getElementById('fill-input').value.trim().toLowerCase();
+            if (input === correctAnswer.toLowerCase()) {
+                handleSuccess();
+            } else {
+                handleFailure(correctAnswer);
+            }
+        }
+
+        function flipCard() {
+            isCardFlipped = !isCardFlipped;
+            if (isCardFlipped) {
+                document.getElementById('card-front').classList.add('hidden');
+                document.getElementById('card-back').classList.remove('hidden');
+                speakSpanish(correctAnswer);
+            } else {
+                document.getElementById('card-front').classList.remove('hidden');
+                document.getElementById('card-back').classList.add('hidden');
+            }
+        }
+
+        function handleSuccess() {
+            streak++;
+            let pointsGained = 10;
+            if (streak >= 5) pointsGained += 10;
+            else if (streak >= 3) pointsGained += 5;
+
+            score += pointsGained;
+            updateStats();
+
+            showFeedback(true, `¡Excelente! 정답: ${correctAnswer} (+${pointsGained}pts)`);
+            speakSpanish(correctAnswer);
+            setTimeout(generateNewQuestion, 1600);
+        }
+
+        function handleFailure(ans) {
+            streak = 0;
+            updateStats();
+            showFeedback(false, `¡Oops! 정답은 [ ${ans} ] 입니다.`);
+            setTimeout(generateNewQuestion, 2400);
+        }
+
+        function updateStats() {
+            document.getElementById('streak-count').innerText = `🔥 ${streak}`;
+            document.getElementById('score-count').innerText = `${score} pts`;
+
+            const comboBadge = document.getElementById('combo-badge');
+            const comboText = document.getElementById('combo-text');
+            if (streak >= 3) {
+                comboBadge.classList.remove('hidden');
+                comboText.innerText = `COMBO X${streak} (+${streak >= 5 ? 10 : 5} Bonus)`;
+            } else {
+                comboBadge.classList.add('hidden');
+            }
+        }
+
+        function showFeedback(isCorrect, message) {
+            const box = document.getElementById('feedback-message');
+            box.classList.remove('hidden', 'bg-emerald-100', 'text-emerald-800', 'bg-red-100', 'text-red-800');
+            
+            if (isCorrect) {
+                box.classList.add('bg-emerald-100', 'text-emerald-800');
+                box.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-circle-check text-xl"></i>
+                        <span>${message}</span>
+                    </div>
+                `;
+            } else {
+                box.classList.add('bg-red-100', 'text-red-800');
+                box.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-circle-xmark text-xl"></i>
+                        <span>${message}</span>
+                    </div>
+                    <div class="text-xs font-normal text-red-700 mt-1">
+                        팁: <strong>${currentSubject.label}</strong> + <strong>${currentVerb.base}</strong> ➔ <strong>${correctAnswer}</strong>
+                    </div>
+                `;
+            }
+        }
+
+        function hideFeedback() {
+            const box = document.getElementById('feedback-message');
+            if (box) box.classList.add('hidden');
+        }
+
+        // --- 6. AUDIO & TTS SPEECH ENGINE ---
+        function speakCurrentVerb() {
+            speakSpanish(`${currentSubject.label} ${correctAnswer}`);
+        }
+
+        function speakTableVerb() {
+            const verbId = document.getElementById('table-verb-select').value;
+            const verb = verbDatabase.find(v => v.id === verbId);
+            if (verb) speakSpanish(verb.base);
+        }
+
+        function speakSpanish(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                const voices = window.speechSynthesis.getVoices();
+                const esVoice = voices.find(v => v.lang.startsWith('es') || v.lang.includes('Spanish'));
+                if (esVoice) utterance.voice = esVoice;
+                
+                utterance.lang = 'es-ES';
+                utterance.rate = 0.88;
+                utterance.pitch = 1.0;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+        }
+
+        function nextQuestion(remembered) {
+            if(remembered) streak++;
+            else streak = 0;
+            updateStats();
+            generateNewQuestion();
+        }
+
+        // --- 7. VERB CONJUGATION MASTER TABLE (완성된 동사 참조표) ---
+        function initTableSelectOptions() {
+            const select = document.getElementById('table-verb-select');
+            select.innerHTML = "";
+
+            const categories = [
+                { id: "-ar", label: "-AR 규칙 동사" },
+                { id: "-er", label: "-ER 규칙 동사" },
+                { id: "-ir", label: "-IR 규칙 동사" },
+                { id: "irregular", label: "불규칙 동사" }
+            ];
+
+            categories.forEach(cat => {
+                const group = document.createElement('optgroup');
+                group.label = cat.label;
+                const filtered = verbDatabase.filter(v => v.category === cat.id);
+                filtered.forEach(v => {
+                    const opt = document.createElement('option');
+                    opt.value = v.id;
+                    opt.innerText = `${v.base} (${v.meaning})`;
+                    group.appendChild(opt);
+                });
+                select.appendChild(group);
+            });
+        }
+
+        function filterTableCategory(category) {
+            selectedTableCategory = category;
+            
+            // Highlight active filter button
+            const buttons = document.querySelectorAll('.table-cat-btn');
+            buttons.forEach(btn => {
+                btn.className = "table-cat-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-all whitespace-nowrap";
+            });
+
+            event.target.className = "table-cat-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white transition-all whitespace-nowrap";
+
+            // Repopulate verb select based on category filter
+            const select = document.getElementById('table-verb-select');
+            select.innerHTML = "";
+
+            let filteredVerbs = verbDatabase;
+            if (category !== "all") {
+                filteredVerbs = verbDatabase.filter(v => v.category === category);
+            }
+
+            filteredVerbs.forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v.id;
+                opt.innerText = `${v.base} (${v.meaning})`;
+                select.appendChild(opt);
+            });
+
+            if (filteredVerbs.length > 0) {
+                select.value = filteredVerbs[0].id;
+                renderConjugationTable();
+            }
+        }
+
+        function renderConjugationTable() {
+            const selectEl = document.getElementById('table-verb-select');
+            if(!selectEl.value) return;
+
+            const verbId = selectEl.value;
+            const tableTense = document.getElementById('table-tense-select').value;
+            const verb = verbDatabase.find(v => v.id === verbId) || verbDatabase[0];
+            
+            // 1. Update Verb Summary Box
+            document.getElementById('summary-initial').innerText = verb.base.charAt(0);
+            document.getElementById('summary-verb-base').innerText = verb.base;
+            document.getElementById('summary-verb-meaning').innerText = `뜻: ${verb.meaning}`;
+            document.getElementById('summary-verb-badge').innerText = verb.type;
+            document.getElementById('summary-verb-tip').innerText = verb.tip;
+
+            // 2. Populate Table Rows
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = "";
+
+            subjects.forEach((s, idx) => {
+                const row = document.createElement('tr');
+                row.className = idx % 2 === 0 ? "bg-white hover:bg-amber-50/50 transition-colors" : "bg-slate-50/60 hover:bg-amber-50/50 transition-colors";
+                
+                const conjugated = verb.conjugations[tableTense][s.key];
+
+                row.innerHTML = `
+                    <td class="p-4 font-bold text-slate-800 flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                        <span>${s.label}</span>
+                    </td>
+                    <td class="p-4 text-slate-500 text-xs font-medium">${s.kr}</td>
+                    <td class="p-4 font-extrabold text-red-600 font-heading text-lg tracking-wide">
+                        ${conjugated}
+                    </td>
+                    <td class="p-4 text-center">
+                        <button onclick="speakSpanish('${conjugated}')" class="w-9 h-9 rounded-xl bg-slate-100 hover:bg-amber-500 hover:text-white text-slate-600 text-xs transition-all flex items-center justify-center mx-auto shadow-sm" title="발음 듣기">
+                            <i class="fa-solid fa-volume-high"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // --- 8. PROMPT COPY HELPER ---
+        function copyPrompt(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            
+            const dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = text;
+            dummy.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummy);
+
+            showToast("프롬프트가 클립보드에 복사되었습니다!");
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.remove('opacity-0', 'translate-y-5', 'pointer-events-none');
+            
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-5', 'pointer-events-none');
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
